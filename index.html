@@ -605,87 +605,185 @@
 
         @media screen and (aspect-ratio: 9/16) {
             body {
-                padding: 1.5vh; /* 使用vh单位来适应屏幕高度 */
+                padding: 1vh;
+                align-items: flex-start; /* 顶部对齐，防止垂直居中导致头部被切 */
             }
 
             .game-container {
-                padding: 2vh; /* 使用vh单位 */
-                gap: 1.5vh;
+                padding: 1.5vh;
+                gap: 1vh;
+                min-height: 98vh; /* 占满屏幕高度 */
+                border-radius: 15px;
+            }
+
+            header {
+                margin-bottom: 0.5vh;
             }
 
             h1 {
-                font-size: 5vw; /* 使用vw单位来适应屏幕宽度 */
+                font-size: 6vw;
+                margin-bottom: 0.5vh;
             }
 
             .subtitle {
-                font-size: 2.5vw;
-                padding: 1vh 2vw;
+                font-size: 3vw;
+                padding: 0.5vh 3vw;
             }
 
-            .left-panel, .right-panel {
+            .game-content {
+                flex-direction: column;
+                gap: 1.5vh;
+            }
+
+            .left-panel {
+                min-width: 100%;
+                flex: 0 0 auto; /* 不伸缩，根据内容决定高度 */
+                gap: 1vh;
+            }
+            
+            .right-panel {
                 min-width: 100%;
             }
 
             .panel {
-                padding: 2vh;
+                padding: 1.5vh;
+                border-radius: 15px;
             }
 
             h2 {
-                font-size: 4vw;
+                font-size: 4.5vw;
+                margin-bottom: 0.5vh;
+                padding-bottom: 0.5vh;
+            }
+
+            .buckets-and-tank-container {
+                margin: 0.5vh 0;
+                gap: 2vw;
+            }
+
+            .bucket-label, .tank-label {
+                font-size: 3vw;
+                margin-bottom: 0.5vh;
+                padding: 0.3vh 2vw;
             }
 
             .bucket-visual {
-                border-width: 0.8vw;
+                border-width: 1vw;
+                border-radius: 2vw 2vw 0 0;
+            }
+            
+            .bucket-water {
+                border-radius: 1.5vw 1.5vw 0 0;
             }
 
             .big-bucket .bucket-visual {
-                width: 18vw;
-                height: 35vh;
+                width: 20vw;
+                height: 22vh; /* 显著减小高度 */
             }
 
             .small-bucket .bucket-visual {
-                width: 15vw;
-                height: 28vh;
+                width: 16vw;
+                height: 18vh; /* 显著减小高度 */
             }
 
             .tank-visual {
-                width: 25vw;
-                height: 20vh;
+                width: 28vw;
+                height: 15vh;
+                border-width: 1vw;
+                border-radius: 0 0 3vw 3vw;
+            }
+            
+            .tank-water {
+                border-radius: 0 0 2.5vw 2.5vw;
             }
 
-            button {
-                font-size: 2.2vw;
-                padding: 1.5vh 1vw;
-                min-height: 6vh;
+            .bucket-capacity, .tank-capacity {
+                font-size: 3vw;
+                margin-top: 0.5vh;
             }
 
-            label {
-                font-size: 2.5vw;
-            }
-
-            input {
-                font-size: 2.5vw;
-                padding: 1.5vh;
-            }
-
-            .steps-list {
-                font-size: 2.2vw;
-            }
-
-            .current-water {
-                font-size: 2.2vw;
-            }
-
-            .success-message {
-                font-size: 2.8vw;
+            .operation-counter {
+                margin-top: 1vh;
+                padding: 1vh;
+                gap: 2vw;
             }
 
             .counter-value {
-                font-size: 4vw;
+                font-size: 5vw;
             }
 
             .counter-label {
-                font-size: 2vw;
+                font-size: 2.5vw;
+            }
+
+            .controls {
+                gap: 2vw;
+                grid-template-columns: repeat(3, 1fr); /* 保持3列 */
+            }
+
+            button {
+                font-size: 3vw;
+                padding: 1vh 0.5vw;
+                min-height: 5vh;
+                border-radius: 2vw;
+                gap: 1vw;
+            }
+            
+            .water-emoji {
+                font-size: 3.5vw;
+            }
+
+            /* 游戏设置部分适配 */
+            .config-section {
+                gap: 1vh;
+            }
+            
+            .compact-input-group {
+                margin-bottom: 1vh;
+                gap: 2vw;
+            }
+            
+            label {
+                font-size: 3.5vw;
+            }
+
+            input {
+                font-size: 3.5vw;
+                padding: 1vh;
+                border-width: 0.5vw;
+                border-radius: 2vw;
+            }
+            
+            .status {
+                min-height: 15vh;
+            }
+            
+            .status h3 {
+                font-size: 3.5vw;
+            }
+            
+            .steps-list {
+                font-size: 3vw;
+                max-height: 20vh;
+            }
+            
+            .step-item {
+                padding: 0.8vh 2vw;
+                margin-bottom: 0.5vh;
+                border-left-width: 1vw;
+                border-radius: 1vw;
+            }
+            
+            .current-water {
+                font-size: 3vw;
+                margin-top: 1vh;
+                padding-top: 1vh;
+            }
+
+            .success-message {
+                font-size: 3.5vw;
+                padding: 1vh;
+                margin-top: 1vh;
             }
         }
     </style>
