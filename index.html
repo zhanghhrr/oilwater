@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>倒油取水小游戏</title>
     <style>
+        :root {
+            --gap-base: 15px;
+            --padding-base: 12px;
+            --touch-target: 48px;
+            --border-radius: 12px;
+            --color-primary: #ff6b6b;
+            --color-bg-panel: #fff9f9;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
         }
         
         body {
@@ -19,7 +29,7 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
-            overflow: auto;
+            overflow-x: hidden; /* 防止水平滚动 */
         }
         
         .game-container {
@@ -107,50 +117,65 @@
         }
         
         .buckets-and-tank-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 15px;
+            display: block; /* 内部由子元素控制 Grid */
+            width: 100%;
             margin: 10px 0;
             flex: 1;
         }
+
+        /* 统一使用 Grid 布局 */
+        .buckets-only, .with-tank {
+            display: grid;
+            /* 默认策略：尝试一行显示所有，最小宽度约束 */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--gap-base);
+            width: 100%;
+            align-items: end;
+            justify-content: center;
+        }
         
-        .bucket {
+        /* 使用 display: contents 扁平化 DOM 结构，让 Grid 直接控制所有容器 */
+        .tank-container, .buckets-group {
+            display: contents;
+        }
+        
+        .bucket, .tank {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-self: center;
+            transition: transform 0.3s ease, width 0.3s ease;
+            width: 100%;
+            max-width: 150px; /* 默认最大宽度限制 */
         }
         
-        .bucket-label {
+        .bucket-label, .tank-label {
             font-weight: bold;
             color: #ff6b6b;
             margin-bottom: 5px;
-            font-size: 0.95rem;
+            font-size: 0.95rem; /* 使用 rem */
             background-color: #fff0f0;
             padding: 4px 12px;
             border-radius: 12px;
+            white-space: nowrap;
         }
         
         /* 大桶样式 */
-        .big-bucket {
-            width: 110px;
-        }
-        
         .big-bucket .bucket-visual {
-            width: 80px;
+            width: 80%; /* 使用百分比适应 Grid 单元格 */
+            max-width: 80px;
             height: 150px;
             border-width: 5px;
+            margin: 0 auto;
         }
         
-        /* 小桶样式 - 比大桶小 */
-        .small-bucket {
-            width: 95px;
-        }
-        
+        /* 小桶样式 */
         .small-bucket .bucket-visual {
-            width: 65px;
+            width: 70%;
+            max-width: 65px;
             height: 120px;
             border-width: 4px;
+            margin: 0 auto;
         }
         
         .bucket-visual {
@@ -161,6 +186,7 @@
             border-radius: 10px 10px 0 0;
             position: relative;
             overflow: hidden;
+            transition: height 0.3s ease, width 0.3s ease;
         }
         
         .bucket-water {
@@ -179,32 +205,14 @@
             font-size: 0.8rem;
         }
         
-        /* 大缸样式 - 放在左侧 */
-        .tank-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
+        /* 大缸样式 */
         .tank {
-            width: 130px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .tank-label {
-            font-weight: bold;
-            color: #ff6b6b;
-            margin-bottom: 6px;
-            font-size: 0.95rem;
-            background-color: #fff0f0;
-            padding: 4px 12px;
-            border-radius: 12px;
+            max-width: 180px; /* 大缸稍微宽一点 */
         }
         
         .tank-visual {
-            width: 120px;
+            width: 90%;
+            max-width: 120px;
             height: 100px;
             background-color: #fff0f0;
             border: 4px solid #ff8e8e;
@@ -212,6 +220,8 @@
             border-radius: 0 0 15px 15px;
             position: relative;
             overflow: hidden;
+            margin: 0 auto;
+            transition: height 0.3s ease, width 0.3s ease;
         }
         
         .tank-water {
@@ -229,6 +239,46 @@
             color: #888;
             font-size: 0.8rem;
         }
+
+        /* 针对小屏设备的特定适配规则 */
+        /* 600px - 768px: 容器宽度30%，间距15px，确保一行三个 */
+        @media (min-width: 600px) and (max-width: 768px) {
+            .with-tank {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            .buckets-only {
+                grid-template-columns: repeat(2, 1fr); /* 只有两个桶时 */
+                gap: 30px;
+            }
+            .bucket, .tank {
+                max-width: none; /* 让它填满网格 */
+            }
+        }
+
+        /* 400px - 599px: 容器宽度45%，间距10px，两列布局 */
+        @media (min-width: 400px) and (max-width: 599px) {
+            .with-tank, .buckets-only {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            /* 只有两个桶时也保持两列 */
+            .bucket, .tank {
+                max-width: none;
+            }
+        }
+
+        /* < 400px: 容器宽度90%，间距8px，单列布局 */
+        @media (max-width: 399px) {
+            .with-tank, .buckets-only {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .bucket, .tank {
+                width: 90%; /* 视觉上占90% */
+                max-width: none;
+            }
+        }
         
         .controls {
             display: grid;
@@ -238,19 +288,25 @@
         }
         
         button {
-            padding: 8px 6px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s ease, transform 0.1s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            min-height: 40px;
+            gap: 6px;
+            min-height: var(--touch-target);
+            touch-action: manipulation; /* 优化触摸操作 */
         }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
         
         button:hover {
             transform: translateY(-2px);
@@ -784,6 +840,125 @@
                 font-size: 3.5vw;
                 padding: 1vh;
                 margin-top: 1vh;
+            }
+        }
+
+        /* 针对手机竖屏的适配：优先保证核心区域首屏显示，但允许滚动查看设置 */
+        @media screen and (max-width: 768px) and (orientation: portrait) {
+            html, body {
+                height: auto;
+                min-height: 100%;
+                overflow-x: hidden; /* 防止水平滚动，但允许垂直滚动 */
+                overflow-y: auto;
+            }
+
+            .game-container {
+                height: auto;
+                min-height: 100vh;
+                max-height: none;
+                padding: 8px;
+                gap: 5px;
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            header {
+                flex-shrink: 0;
+                margin-bottom: 5px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 2px;
+            }
+
+            .subtitle {
+                display: block; /* 恢复副标题显示 */
+                font-size: 0.8rem;
+                margin-bottom: 5px;
+            }
+
+            .game-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                min-height: 0;
+            }
+
+            .left-panel {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            /* 恢复设置面板显示，位于底部 */
+            .right-panel {
+                display: block;
+                width: 100%;
+            }
+
+            .panel.game-state-panel {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                margin-bottom: 0;
+                /* 尝试让它在首屏尽可能占满，但不强制 */
+                min-height: 50vh; 
+            }
+
+            h2 {
+                font-size: 1rem;
+                margin-bottom: 5px;
+                padding-bottom: 5px;
+                flex-shrink: 0;
+            }
+
+            .buckets-and-tank-container {
+                flex: 1;
+                margin: 5px 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                min-height: 200px; /* 保证最小高度 */
+            }
+
+            .with-tank, .buckets-only {
+                height: 100%;
+                align-content: center;
+            }
+
+            .bucket-visual, .tank-visual {
+                height: auto;
+                max-height: 25vh;
+                width: auto;
+                max-width: 100%;
+                aspect-ratio: 1/1.6;
+            }
+            
+            .big-bucket .bucket-visual, .small-bucket .bucket-visual {
+                width: auto;
+            }
+
+            .operation-counter {
+                flex-shrink: 0;
+                padding: 5px;
+                margin-top: 5px;
+            }
+
+            .controls {
+                flex-shrink: 0;
+                gap: 8px;
+                padding: 5px 0;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            button {
+                min-height: 48px;
+                font-size: 0.85rem;
+                padding: 0;
             }
         }
     </style>
